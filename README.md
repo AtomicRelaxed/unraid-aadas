@@ -91,5 +91,8 @@ Not tested yet: a real power loss during a switch, other Unraid versions than 7.
 ## Support
 Please report problems in the [GitHub issues](https://github.com/RaisonRed/unraid-aadas/issues). Attach `/boot/config/aadas/aadas.log` and the output of `aadas.sh plan`.
 
+## Credits
+Idea, hardware and testing: RaisonRed. Implementation: Anton (Claude, Anthropic). Code review and fixture tests: Konrad (Codex, OpenAI).
+
 ## License
 GPLv3 or later, see [LICENSE](LICENSE). © 2026 RaisonRed
