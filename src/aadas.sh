@@ -67,9 +67,21 @@ inventory() {
     done
   done | awk '!seen[$2]++' | sort
 }
+# boot devices (class "flash"): whole-disk kernel names that hold /boot, space-separated.
+# USB flash (sda1 -> sda), internal boot since Unraid 7.3 (SATA sdb1 -> sdb, NVMe nvme0n1p1 -> nvme0n1),
+# or every disk of a ZFS boot pool (mirror). Unknown -> empty: the boot disk then counts as "unknown" and nothing is applied.
 flash_dev() {
   if [ -n "${AADAS_FLASHDEV:-}" ]; then echo "$AADAS_FLASHDEV"; return; fi
-  local s; s=$(findmnt -no SOURCE /boot 2>/dev/null); s=${s##*/}; echo "${s%%[0-9]*}"
+  local s t d p
+  s=$(findmnt -no SOURCE /boot 2>/dev/null | head -n1); s=${s%%\[*}
+  t=$(findmnt -no FSTYPE /boot 2>/dev/null | head -n1)
+  { if [ "$t" = zfs ]; then
+      for d in $(zpool list -vHP "${s%%/*}" 2>/dev/null | awk '$1 ~ /^\/dev\// {print $1}'); do
+        p=$(lsblk -no PKNAME "$d" 2>/dev/null | head -n1); d=$(readlink -f "$d"); echo "${p:-${d##*/}}"
+      done
+    elif [ -b "$s" ]; then
+      p=$(lsblk -no PKNAME "$s" 2>/dev/null | head -n1); echo "${p:-${s##*/}}"
+    fi; } | grep . | sort -u | tr '\n' ' ' | sed 's/ $//'
 }
 # inventory twice until stable (devices that show up late must not make a set look incomplete or different)
 settle() {
@@ -88,8 +100,8 @@ global_ids() {
 }
 # needs $INV
 managed_ids() {
-  local fd; fd=$(flash_dev)
-  comm -23 <(awk -v fd="$fd" '$2 != fd {print $1}' <<< "$INV" | sort -u) <(global_ids | sort -u) | grep .
+  local fd; fd=" $(flash_dev) "
+  comm -23 <(awk -v fd="$fd" 'index(fd, " " $2 " ") == 0 {print $1}' <<< "$INV" | sort -u) <(global_ids | sort -u) | grep .
 }
 # manifest of a profile: readable, non-empty -> sorted ids on stdout, else return 1
 manifest() {
@@ -124,7 +136,7 @@ broken_links() {
 class_of() {   # <id> -> flash|global|ignored|set:NAME|unknown (needs $INV)
   local id=$1 dev n g
   dev=$(awk -v i="$id" '$1 == i {print $2; exit}' <<< "$INV")
-  [ "$dev" = "$(flash_dev)" ] && { echo flash; return; }
+  [ -n "$dev" ] && [[ " $(flash_dev) " == *" $dev "* ]] && { echo flash; return; }
   for g in $IGNORE_IDS; do [ "$g" = "$id" ] && { echo ignored; return; }; done
   global_ids | grep -qxF "$id" && { echo global; return; }
   for n in $(profiles); do manifest "$n" 2>/dev/null | grep -qxF "$id" && { echo "set:$n"; return; }; done

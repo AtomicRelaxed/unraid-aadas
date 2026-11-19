@@ -4,7 +4,7 @@
 
 **An Unraid plugin for servers that hold more than one set of disks. At boot it detects which set is installed and applies that set's array configuration.**
 
-> **Status: 0.1.0 RC1 (plugin version `2026.11.19g`) - release candidate.** It runs on one server and has passed isolated tests of the boot and rollback paths. Read [Testing](#testing) before you rely on it, and keep a flash backup.
+> **Status: 0.1.0 RC1 (plugin version `2026.11.19h`) - release candidate.** It runs on one server and has passed isolated tests of the boot and rollback paths. Read [Testing](#testing) before you rely on it, and keep a flash backup.
 
 ## Why
 Unraid keeps one array configuration. If you swap whole sets of disks in the same chassis, for example a media set and a backup set, every swap means reassigning slots, pools and shares by hand. One wrong click starts the array with the wrong disks, or offers to format them.
@@ -16,7 +16,7 @@ AADAS saves the configuration of each set and switches between sets as one unit.
 - the share list of the *Custom SMB Shares* plugin, if it is installed
 
 ## Features
-- **Detect at boot** (optional, off by default): before Unraid reads its configuration, AADAS applies the one saved set whose disks are installed *exactly*. The boot flash, global pools and ignored disks do not count.
+- **Detect at boot** (optional, off by default): before Unraid reads its configuration, AADAS applies the one saved set whose disks are installed *exactly*. The boot device (USB flash or internal boot drive), global pools and ignored disks do not count.
 - **Safe by default:** AADAS changes nothing when anything is unclear. That includes missing, extra, unknown or mixed disks, two matching sets, or an incomplete set. Array autostart is held and a notification says why.
 - **Verified switch:**
   1. Array autostart is held first.

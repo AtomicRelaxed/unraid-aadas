@@ -1,3 +1,6 @@
+###2026.11.19h (0.1.0 RC1)
+- Internal boot (Unraid 7.3): the boot device is recognized on a SATA SSD, an NVMe drive or a mirrored ZFS boot pool, not only on a USB flash drive
+
 ###2026.11.19g (0.1.0 RC1)
 - The boot script on the flash is replaced only after the new copy is complete and verified
 
