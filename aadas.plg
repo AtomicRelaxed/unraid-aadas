@@ -2,13 +2,16 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name "aadas">
 <!ENTITY author "RaisonRed">
-<!ENTITY version "2026.11.19a">
+<!ENTITY version "2026.11.19b">
 <!ENTITY launch "Utilities/AADAS">
 <!ENTITY gitURL "https://raw.githubusercontent.com/RaisonRed/unraid-aadas/main">
 <!ENTITY pluginURL "&gitURL;/aadas.plg">
 ]>
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" icon="aadas.png" pluginURL="&pluginURL;" support="https://github.com/RaisonRed/unraid-aadas/issues" min="7.0.0">
 <CHANGES>
+###2026.11.19b (0.1.0 RC1)
+- Autosave schedule is active right after a fresh install (before: only after the next reboot)
+
 ###2026.11.19a (0.1.0 RC1)
 - Custom SMB Shares: after a set was applied at boot, its Samba config is rebuilt when the array has started (that plugin writes its config before the boot step and its own start handler does not run), so the new set's SMB shares are exported instead of the old ones
 
@@ -187,7 +190,7 @@ Utilities → AADAS - Auto Array Detection & Swap. Save the current set, swap th
 Unraid 7.0 or newer. The plugin adds one line to `/boot/config/go`, before `emhttp`; uninstalling removes it. Saved sets in `/boot/config/aadas` are kept when the plugin is removed.
 
 ## Status
-0.1.0 RC1 (plugin version 2026.11.19), a release candidate. Tested on one server (Unraid 7.3.4, two sets of 9 disks plus a global SSD pool) and with isolated fixture tests of the boot and rollback paths. A real power loss during a switch has not been tested. Keep a flash backup.
+0.1.0 RC1 (plugin version 2026.11.19b), a release candidate. Tested on one server (Unraid 7.3.4, two sets of 9 disks plus a global SSD pool) and with isolated fixture tests of the boot and rollback paths. A real power loss during a switch has not been tested. Keep a flash backup.
 
 Author: RaisonRed. License: GPLv3 or later.
 ]]></INLINE>
@@ -811,6 +814,7 @@ if ! grep -q 'aadas.sh boot' /boot/config/go; then
 fi
 A=$(grep -oP '^AUTOSAVE="\K\w+' /boot/config/aadas/global.cfg 2>/dev/null)
 if [ -n "$A" ] && [ "$A" != off ]; then bash /boot/config/aadas/aadas.sh schedule "$A" >/dev/null; fi   # restore schedule after reinstall
+[ -n "$A" ] && [ "$A" != off ] && setsid bash -c 'sleep 15; [ -x /usr/local/sbin/update_cron ] && /usr/local/sbin/update_cron' >/dev/null 2>&1 < /dev/null &   # plugin is registered only after this script; then update_cron picks up its cron file
 echo "AADAS installed. Set GLOBAL_POOLS in /boot/config/aadas/global.cfg (pools that are never swapped)."
 ]]></INLINE>
 </FILE>

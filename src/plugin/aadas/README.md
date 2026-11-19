@@ -23,6 +23,6 @@ Utilities → AADAS - Auto Array Detection & Swap. Save the current set, swap th
 Unraid 7.0 or newer. The plugin adds one line to `/boot/config/go`, before `emhttp`; uninstalling removes it. Saved sets in `/boot/config/aadas` are kept when the plugin is removed.
 
 ## Status
-0.1.0 RC1 (plugin version 2026.11.19), a release candidate. Tested on one server (Unraid 7.3.4, two sets of 9 disks plus a global SSD pool) and with isolated fixture tests of the boot and rollback paths. A real power loss during a switch has not been tested. Keep a flash backup.
+0.1.0 RC1 (plugin version 2026.11.19b), a release candidate. Tested on one server (Unraid 7.3.4, two sets of 9 disks plus a global SSD pool) and with isolated fixture tests of the boot and rollback paths. A real power loss during a switch has not been tested. Keep a flash backup.
 
 Author: RaisonRed. License: GPLv3 or later.

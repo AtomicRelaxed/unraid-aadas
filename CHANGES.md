@@ -1,3 +1,6 @@
+###2026.11.19b (0.1.0 RC1)
+- Autosave schedule is active right after a fresh install (before: only after the next reboot)
+
 ###2026.11.19a (0.1.0 RC1)
 - Custom SMB Shares: after a set was applied at boot, its Samba config is rebuilt when the array has started (that plugin writes its config before the boot step and its own start handler does not run), so the new set's SMB shares are exported instead of the old ones
 

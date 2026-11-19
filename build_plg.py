@@ -37,6 +37,7 @@ if ! grep -q 'aadas.sh boot' /boot/config/go; then
 fi
 A=$(grep -oP '^AUTOSAVE="\K\w+' /boot/config/aadas/global.cfg 2>/dev/null)
 if [ -n "$A" ] && [ "$A" != off ]; then bash /boot/config/aadas/aadas.sh schedule "$A" >/dev/null; fi   # restore schedule after reinstall
+[ -n "$A" ] && [ "$A" != off ] && setsid bash -c 'sleep 15; [ -x /usr/local/sbin/update_cron ] && /usr/local/sbin/update_cron' >/dev/null 2>&1 < /dev/null &   # plugin is registered only after this script; then update_cron picks up its cron file
 echo "AADAS installed. Set GLOBAL_POOLS in /boot/config/aadas/global.cfg (pools that are never swapped)."
 ]]></INLINE>
 </FILE>
