@@ -1,3 +1,6 @@
+###2026.11.19a (0.1.0 RC1)
+- Custom SMB Shares: after a set was applied at boot, its Samba config is rebuilt when the array has started (that plugin writes its config before the boot step and its own start handler does not run), so the new set's SMB shares are exported instead of the old ones
+
 ###2026.11.19 (0.1.0 RC1)
 - Renamed to AADAS - Auto Array Detection and Swap (was "Disk Sets"); author RaisonRed; own icon; README in the plugin manager
 - Detect the installed set at boot (switch on the page, off by default): the one saved set whose disks are installed EXACTLY is applied; boot flash, global pools and ignored disks (IGNORE_IDS) do not count. Missing, extra, unknown or mixed disks, two matches or an empty manifest: nothing is applied, autostart is held

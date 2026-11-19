@@ -8,6 +8,7 @@ files = [("/usr/local/emhttp/plugins/aadas/AADAS.page", rd(P + "/AADAS.page"), N
          ("/usr/local/emhttp/plugins/aadas/include/action.php", rd(P + "/include/action.php"), None),
          ("/usr/local/emhttp/plugins/aadas/event/driver_loaded", rd(P + "/event/driver_loaded"), "0755"),
          ("/usr/local/emhttp/plugins/aadas/event/stopped", rd(P + "/event/stopped"), "0755"),
+         ("/usr/local/emhttp/plugins/aadas/event/started", rd(P + "/event/started"), "0755"),
          ("/usr/local/emhttp/plugins/aadas/scripts/aadas.sh", rd(D + "/src/aadas.sh"), "0755")]
 for _, c, _m in files: assert "]]>" not in c
 o = ['<?xml version="1.0" standalone="yes"?>', '<!DOCTYPE PLUGIN [', '<!ENTITY name "aadas">', '<!ENTITY author "RaisonRed">',
