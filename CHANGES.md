@@ -1,3 +1,6 @@
+###2026.11.19g (0.1.0 RC1)
+- The boot script on the flash is replaced only after the new copy is complete and verified
+
 ###2026.11.19f (0.1.0 RC1)
 - Install fails visibly (instead of reporting success) if the script cannot be copied to the flash or the boot step cannot be added; a failed autosave schedule is reported
 - The autosave schedule is registered once the plugin manager has registered the plugin, instead of after a fixed 15 s

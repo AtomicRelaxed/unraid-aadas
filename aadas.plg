@@ -2,13 +2,16 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name "aadas">
 <!ENTITY author "AtomicRelaxed">
-<!ENTITY version "2026.11.19f">
+<!ENTITY version "2026.11.19g">
 <!ENTITY launch "Utilities/AADAS">
 <!ENTITY gitURL "https://raw.githubusercontent.com/AtomicRelaxed/unraid-aadas/main">
 <!ENTITY pluginURL "&gitURL;/aadas.plg">
 ]>
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" icon="aadas.png" pluginURL="&pluginURL;" support="https://github.com/AtomicRelaxed/unraid-aadas/issues" min="7.0.0">
 <CHANGES>
+###2026.11.19g (0.1.0 RC1)
+- The boot script on the flash is replaced only after the new copy is complete and verified
+
 ###2026.11.19f (0.1.0 RC1)
 - Install fails visibly (instead of reporting success) if the script cannot be copied to the flash or the boot step cannot be added; a failed autosave schedule is reported
 - The autosave schedule is registered once the plugin manager has registered the plugin, instead of after a fixed 15 s
@@ -802,7 +805,10 @@ mkdir -p /boot/config/aadas/profiles /boot/config/aadas/backups /boot/config/plu
 fail() { echo "ERROR: $* - AADAS is NOT correctly installed"; exit 1; }   # a non-zero exit makes the plugin manager report the install as failed
 S=/usr/local/emhttp/plugins/aadas/scripts/aadas.sh
 [ -s "$S" ] || fail "plugin files missing ($S)"
-cp -f "$S" /boot/config/aadas/aadas.sh && cmp -s "$S" /boot/config/aadas/aadas.sh || fail "could not copy aadas.sh to the flash"   # boot step needs it on the flash (runs before plugins load)
+# boot step needs the script on the flash (it runs before plugins load). Copy beside it, verify, then rename:
+# the old script stays in place until the new one is complete, so a failed update never leaves a broken boot step.
+cp -f "$S" /boot/config/aadas/aadas.sh.new && cmp -s "$S" /boot/config/aadas/aadas.sh.new && sync \
+  && mv -f /boot/config/aadas/aadas.sh.new /boot/config/aadas/aadas.sh && sync || { rm -f /boot/config/aadas/aadas.sh.new; fail "could not copy aadas.sh to the flash"; }
 [ -f /boot/config/aadas/global.cfg ] || printf 'GLOBAL_POOLS=""\nAUTO_DETECT="no"\nAUTOSAVE="off"\nSAVE_ON_STOP="yes"\nIGNORE_IDS=""\n' > /boot/config/aadas/global.cfg
 if ! grep -q 'aadas.sh boot' /boot/config/go; then
   cp -p /boot/config/go /boot/config/go.bak_aadas

@@ -32,7 +32,10 @@ mkdir -p /boot/config/aadas/profiles /boot/config/aadas/backups /boot/config/plu
 fail() { echo "ERROR: $* - AADAS is NOT correctly installed"; exit 1; }   # a non-zero exit makes the plugin manager report the install as failed
 S=/usr/local/emhttp/plugins/aadas/scripts/aadas.sh
 [ -s "$S" ] || fail "plugin files missing ($S)"
-cp -f "$S" /boot/config/aadas/aadas.sh && cmp -s "$S" /boot/config/aadas/aadas.sh || fail "could not copy aadas.sh to the flash"   # boot step needs it on the flash (runs before plugins load)
+# boot step needs the script on the flash (it runs before plugins load). Copy beside it, verify, then rename:
+# the old script stays in place until the new one is complete, so a failed update never leaves a broken boot step.
+cp -f "$S" /boot/config/aadas/aadas.sh.new && cmp -s "$S" /boot/config/aadas/aadas.sh.new && sync \
+  && mv -f /boot/config/aadas/aadas.sh.new /boot/config/aadas/aadas.sh && sync || { rm -f /boot/config/aadas/aadas.sh.new; fail "could not copy aadas.sh to the flash"; }
 [ -f /boot/config/aadas/global.cfg ] || printf 'GLOBAL_POOLS=""\nAUTO_DETECT="no"\nAUTOSAVE="off"\nSAVE_ON_STOP="yes"\nIGNORE_IDS=""\n' > /boot/config/aadas/global.cfg
 if ! grep -q 'aadas.sh boot' /boot/config/go; then
   cp -p /boot/config/go /boot/config/go.bak_aadas
