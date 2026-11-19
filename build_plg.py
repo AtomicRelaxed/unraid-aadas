@@ -29,16 +29,26 @@ echo '{icon}' | base64 -d > /usr/local/emhttp/plugins/aadas/images/aadas.png
 o.append(r'''<FILE Run="/bin/bash">
 <INLINE><![CDATA[
 mkdir -p /boot/config/aadas/profiles /boot/config/aadas/backups /boot/config/plugins/aadas
-cp -f /usr/local/emhttp/plugins/aadas/scripts/aadas.sh /boot/config/aadas/aadas.sh   # boot step needs it on the flash (runs before plugins load)
+fail() { echo "ERROR: $* - AADAS is NOT correctly installed"; exit 1; }   # a non-zero exit makes the plugin manager report the install as failed
+S=/usr/local/emhttp/plugins/aadas/scripts/aadas.sh
+[ -s "$S" ] || fail "plugin files missing ($S)"
+cp -f "$S" /boot/config/aadas/aadas.sh && cmp -s "$S" /boot/config/aadas/aadas.sh || fail "could not copy aadas.sh to the flash"   # boot step needs it on the flash (runs before plugins load)
 [ -f /boot/config/aadas/global.cfg ] || printf 'GLOBAL_POOLS=""\nAUTO_DETECT="no"\nAUTOSAVE="off"\nSAVE_ON_STOP="yes"\nIGNORE_IDS=""\n' > /boot/config/aadas/global.cfg
 if ! grep -q 'aadas.sh boot' /boot/config/go; then
   cp -p /boot/config/go /boot/config/go.bak_aadas
   sed -i 's|^/usr/local/sbin/emhttp|timeout 60 bash /boot/config/aadas/aadas.sh boot \|\| true\n/usr/local/sbin/emhttp|' /boot/config/go
   echo "Added the boot step to /boot/config/go (backup: go.bak_aadas)."
 fi
+grep -q 'aadas.sh boot' /boot/config/go || fail "could not add the boot step to /boot/config/go (no /usr/local/sbin/emhttp line found)"
 A=$(grep -oP '^AUTOSAVE="\K\w+' /boot/config/aadas/global.cfg 2>/dev/null)
-if [ -n "$A" ] && [ "$A" != off ]; then bash /boot/config/aadas/aadas.sh schedule "$A" >/dev/null; fi   # restore schedule after reinstall
-[ -n "$A" ] && [ "$A" != off ] && setsid bash -c 'sleep 15; [ -x /usr/local/sbin/update_cron ] && /usr/local/sbin/update_cron' >/dev/null 2>&1 < /dev/null &   # plugin is registered only after this script; then update_cron picks up its cron file
+if [ -n "$A" ] && [ "$A" != off ]; then   # restore the autosave schedule after a reinstall
+  if bash /boot/config/aadas/aadas.sh schedule "$A" >/dev/null 2>&1; then
+    # update_cron only reads plugins registered in /var/log/plugins, which happens after this script: wait for it (max 5 min)
+    setsid bash -c 'for i in $(seq 1 150); do [ -e /var/log/plugins/aadas.plg ] && break; sleep 2; done; [ -x /usr/local/sbin/update_cron ] && /usr/local/sbin/update_cron' >/dev/null 2>&1 < /dev/null &
+  else
+    echo "WARNING: autosave schedule '$A' could not be restored - set it again on the AADAS page"
+  fi
+fi
 echo "AADAS installed. Set GLOBAL_POOLS in /boot/config/aadas/global.cfg (pools that are never swapped)."
 ]]></INLINE>
 </FILE>

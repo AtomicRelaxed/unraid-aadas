@@ -5,8 +5,8 @@
 B=/boot/config/aadas; export L=/usr/local/emhttp/plugins/custom.smb.shares/include/lib.php; M=/var/tmp/aadas_smb_rebuilt
 [ -f "$L" ] && [ ! -f "$M" ] || exit 0
 grep -qx 'result=applied' "$B/last_boot" 2>/dev/null || exit 0
-touch "$M"
 if php -r 'require getenv("L"); $r = rebuildSambaConfig(); exit($r["success"] ? 0 : 1);' 2>/dev/null; then
+  touch "$M"   # only after success: a failed rebuild is retried at the next array start
   echo "$(date '+%F %T') boot: Custom SMB Shares config rebuilt for the applied set" >> "$B/aadas.log"
 else
   /usr/local/emhttp/webGui/scripts/notify -e "AADAS" -s "SMB shares of the applied set not rebuilt" -d "Rebuild them in Custom SMB Shares (or restart its service)." -i "warning" -l "/Utilities/AADAS"

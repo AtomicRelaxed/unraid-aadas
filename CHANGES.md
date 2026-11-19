@@ -1,3 +1,8 @@
+###2026.11.19f (0.1.0 RC1)
+- Install fails visibly (instead of reporting success) if the script cannot be copied to the flash or the boot step cannot be added; a failed autosave schedule is reported
+- The autosave schedule is registered once the plugin manager has registered the plugin, instead of after a fixed 15 s
+- A failed rebuild of the Custom SMB Shares config is retried at the next array start
+
 ###2026.11.19e (0.1.0 RC1)
 - Author and project URLs moved to AtomicRelaxed (GitHub account renamed); existing installs follow the new plugin URL with this update
 
