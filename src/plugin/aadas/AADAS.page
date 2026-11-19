@@ -5,7 +5,7 @@ Tag="hdd-o"
 ---
 <?PHP
 /* AADAS - swap whole disk sets on Unraid.
- * Copyright (C) 2026 RaisonRed. License: GPLv3 or later.
+ * Copyright (C) 2026 AtomicRelaxed. License: GPLv3 or later.
  */
 $aadas   = '/boot/config/aadas/aadas.sh';
 $run  = function($a) use ($aadas) { return shell_exec('bash '.escapeshellarg($aadas).' '.$a.' 2>&1'); };

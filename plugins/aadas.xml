@@ -2,15 +2,15 @@
 <Plugin>
   <Name>AADAS - Auto Array Detection &amp; Swap</Name>
   <Overview>For servers that hold more than one set of disks (for example a media set and a backup set) of which only one is installed at a time. AADAS saves the configuration of each set - slot assignment, pool and share configs and the Custom SMB Shares list - and switches between sets as one unit. With "Detect at boot" turned on, the saved set whose disks are installed exactly is applied before Unraid reads its configuration. Anything unclear (missing, extra or mixed disks, two matching sets) changes nothing, holds array autostart and sends a notification. Every switch is backed up with checksums, journaled, verified and rolled back on failure; a read-only preview shows what the next boot will do. Release candidate - keep a flash backup.</Overview>
-  <PluginURL>https://raw.githubusercontent.com/RaisonRed/unraid-aadas/main/aadas.plg</PluginURL>
-  <PluginAuthor>RaisonRed</PluginAuthor>
-  <Support>https://github.com/RaisonRed/unraid-aadas/issues</Support>
-  <Project>https://github.com/RaisonRed/unraid-aadas</Project>
-  <ReadMe>https://raw.githubusercontent.com/RaisonRed/unraid-aadas/main/README.md</ReadMe>
+  <PluginURL>https://raw.githubusercontent.com/AtomicRelaxed/unraid-aadas/main/aadas.plg</PluginURL>
+  <PluginAuthor>AtomicRelaxed</PluginAuthor>
+  <Support>https://github.com/AtomicRelaxed/unraid-aadas/issues</Support>
+  <Project>https://github.com/AtomicRelaxed/unraid-aadas</Project>
+  <ReadMe>https://raw.githubusercontent.com/AtomicRelaxed/unraid-aadas/main/README.md</ReadMe>
   <Category>Tools:System</Category>
   <Beta>true</Beta>
   <MinVer>7.0.0</MinVer>
-  <Icon>https://raw.githubusercontent.com/RaisonRed/unraid-aadas/main/images/aadas_256.png</Icon>
+  <Icon>https://raw.githubusercontent.com/AtomicRelaxed/unraid-aadas/main/images/aadas_256.png</Icon>
   <License>GPL-3.0-or-later</License>
   <ExtraSearchTerms>disk set swap array profile switch hot-swap backup rotation detect</ExtraSearchTerms>
 </Plugin>

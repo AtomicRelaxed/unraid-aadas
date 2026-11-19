@@ -4,7 +4,7 @@
 
 **An Unraid plugin for servers that hold more than one set of disks. At boot it detects which set is installed and applies that set's array configuration.**
 
-> **Status: 0.1.0 RC1 (plugin version `2026.11.19d`) - release candidate.** It runs on one server and has passed isolated tests of the boot and rollback paths. Read [Testing](#testing) before you rely on it, and keep a flash backup.
+> **Status: 0.1.0 RC1 (plugin version `2026.11.19e`) - release candidate.** It runs on one server and has passed isolated tests of the boot and rollback paths. Read [Testing](#testing) before you rely on it, and keep a flash backup.
 
 ## Why
 Unraid keeps one array configuration. If you swap whole sets of disks in the same chassis, for example a media set and a backup set, every swap means reassigning slots, pools and shares by hand. One wrong click starts the array with the wrong disks, or offers to format them.
@@ -32,7 +32,7 @@ AADAS saves the configuration of each set and switches between sets as one unit.
 ## Install
 Unraid 7.0 or newer. In the web UI, open *Plugins → Install Plugin*, paste the URL and click *Install*:
 ```
-https://raw.githubusercontent.com/RaisonRed/unraid-aadas/main/aadas.plg
+https://raw.githubusercontent.com/AtomicRelaxed/unraid-aadas/main/aadas.plg
 ```
 
 ## Use
@@ -89,10 +89,10 @@ Not tested yet: a real power loss during a switch, other Unraid versions than 7.
 `python3 build_plg.py <version>` writes `aadas.plg` from `src/` and `CHANGES.md`. Versions use the Unraid date scheme `YYYY.MM.DD`, because the plugin manager compares versions as plain strings.
 
 ## Support
-Please report problems in the [GitHub issues](https://github.com/RaisonRed/unraid-aadas/issues). Attach `/boot/config/aadas/aadas.log` and the output of `aadas.sh plan`.
+Please report problems in the [GitHub issues](https://github.com/AtomicRelaxed/unraid-aadas/issues). Attach `/boot/config/aadas/aadas.log` and the output of `aadas.sh plan`.
 
 ## Credits
-Idea, hardware and testing: RaisonRed. Implementation: Anton (Claude, Anthropic). Code review and fixture tests: Konrad (Codex, OpenAI).
+Idea, hardware and testing: AtomicRelaxed. Implementation: Anton (Claude, Anthropic). Code review and fixture tests: Konrad (Codex, OpenAI).
 
 ## License
-GPLv3 or later, see [LICENSE](LICENSE). © 2026 RaisonRed
+GPLv3 or later, see [LICENSE](LICENSE). © 2026 AtomicRelaxed

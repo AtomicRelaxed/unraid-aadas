@@ -1,6 +1,6 @@
 #!/bin/bash
 # aadas.sh - swap whole disk sets on Unraid 7.x
-# Copyright (C) 2026 RaisonRed. License: GPLv3 or later.
+# Copyright (C) 2026 AtomicRelaxed. License: GPLv3 or later.
 #
 # A disk set = the non-global pools (pools/*.cfg incl. subpools), the shares that live on them, the array assignment
 # (super.dat) and, if the "Custom SMB Shares" plugin is installed, its share list. Global pools (an always-installed

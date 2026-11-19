@@ -11,9 +11,9 @@ files = [("/usr/local/emhttp/plugins/aadas/AADAS.page", rd(P + "/AADAS.page"), N
          ("/usr/local/emhttp/plugins/aadas/event/started", rd(P + "/event/started"), "0755"),
          ("/usr/local/emhttp/plugins/aadas/scripts/aadas.sh", rd(D + "/src/aadas.sh"), "0755")]
 for _, c, _m in files: assert "]]>" not in c
-o = ['<?xml version="1.0" standalone="yes"?>', '<!DOCTYPE PLUGIN [', '<!ENTITY name "aadas">', '<!ENTITY author "RaisonRed">',
-     f'<!ENTITY version "{ver}">', '<!ENTITY launch "Utilities/AADAS">', '<!ENTITY gitURL "https://raw.githubusercontent.com/RaisonRed/unraid-aadas/main">', '<!ENTITY pluginURL "&gitURL;/aadas.plg">', ']>',
-     '<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" icon="aadas.png" pluginURL="&pluginURL;" support="https://github.com/RaisonRed/unraid-aadas/issues" min="7.0.0">', '<CHANGES>', rd(D + "/CHANGES.md").strip(), '</CHANGES>',
+o = ['<?xml version="1.0" standalone="yes"?>', '<!DOCTYPE PLUGIN [', '<!ENTITY name "aadas">', '<!ENTITY author "AtomicRelaxed">',
+     f'<!ENTITY version "{ver}">', '<!ENTITY launch "Utilities/AADAS">', '<!ENTITY gitURL "https://raw.githubusercontent.com/AtomicRelaxed/unraid-aadas/main">', '<!ENTITY pluginURL "&gitURL;/aadas.plg">', ']>',
+     '<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" icon="aadas.png" pluginURL="&pluginURL;" support="https://github.com/AtomicRelaxed/unraid-aadas/issues" min="7.0.0">', '<CHANGES>', rd(D + "/CHANGES.md").strip(), '</CHANGES>',
      '<!-- License: GPLv3 or later -->']
 o.append('<FILE Run="/bin/bash">\n<INLINE><![CDATA[\nrm -rf /usr/local/emhttp/plugins/aadas   # the plugin manager never overwrites existing files: clear stale files so an update applies\n]]></INLINE>\n</FILE>')
 for path, c, mode in files:

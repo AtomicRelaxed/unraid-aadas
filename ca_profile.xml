@@ -1,11 +1,11 @@
 <CommunityApplications>
   <Profile>
-**RaisonRed** - Unraid plugins for people who run more than one set of disks in the same server.
+**AtomicRelaxed** - Unraid plugins for people who run more than one set of disks in the same server.
 
 - **AADAS - Auto Array Detection &amp; Swap**: detects the installed disk set at boot and applies its array configuration (slots, pools, shares, Custom SMB Shares list), with a verified, rolled-back-on-failure switch.
 
-Support: GitHub issues at https://github.com/RaisonRed/unraid-aadas/issues
+Support: GitHub issues at https://github.com/AtomicRelaxed/unraid-aadas/issues
   </Profile>
-  <Icon>https://raw.githubusercontent.com/RaisonRed/unraid-aadas/main/images/aadas_256.png</Icon>
-  <WebPage>https://github.com/RaisonRed/unraid-aadas</WebPage>
+  <Icon>https://raw.githubusercontent.com/AtomicRelaxed/unraid-aadas/main/images/aadas_256.png</Icon>
+  <WebPage>https://github.com/AtomicRelaxed/unraid-aadas</WebPage>
 </CommunityApplications>

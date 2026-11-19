@@ -1,14 +1,17 @@
 <?xml version="1.0" standalone="yes"?>
 <!DOCTYPE PLUGIN [
 <!ENTITY name "aadas">
-<!ENTITY author "RaisonRed">
-<!ENTITY version "2026.11.19d">
+<!ENTITY author "AtomicRelaxed">
+<!ENTITY version "2026.11.19e">
 <!ENTITY launch "Utilities/AADAS">
-<!ENTITY gitURL "https://raw.githubusercontent.com/RaisonRed/unraid-aadas/main">
+<!ENTITY gitURL "https://raw.githubusercontent.com/AtomicRelaxed/unraid-aadas/main">
 <!ENTITY pluginURL "&gitURL;/aadas.plg">
 ]>
-<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" icon="aadas.png" pluginURL="&pluginURL;" support="https://github.com/RaisonRed/unraid-aadas/issues" min="7.0.0">
+<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" icon="aadas.png" pluginURL="&pluginURL;" support="https://github.com/AtomicRelaxed/unraid-aadas/issues" min="7.0.0">
 <CHANGES>
+###2026.11.19e (0.1.0 RC1)
+- Author and project URLs moved to AtomicRelaxed (GitHub account renamed); existing installs follow the new plugin URL with this update
+
 ###2026.11.19d (0.1.0 RC1)
 - Updates now replace the plugin files (the plugin manager skips files that already exist, so 2026.11.19c did not apply its README)
 
@@ -22,7 +25,7 @@
 - Custom SMB Shares: after a set was applied at boot, its Samba config is rebuilt when the array has started (that plugin writes its config before the boot step and its own start handler does not run), so the new set's SMB shares are exported instead of the old ones
 
 ###2026.11.19 (0.1.0 RC1)
-- Renamed to AADAS - Auto Array Detection and Swap (was "Disk Sets"); author RaisonRed; own icon; README in the plugin manager
+- Renamed to AADAS - Auto Array Detection and Swap (was "Disk Sets"); author AtomicRelaxed; own icon; README in the plugin manager
 - Detect the installed set at boot (switch on the page, off by default): the one saved set whose disks are installed EXACTLY is applied; boot flash, global pools and ignored disks (IGNORE_IDS) do not count. Missing, extra, unknown or mixed disks, two matches or an empty manifest: nothing is applied, autostart is held
 - Staged, verified switch: autostart hold first, verified backup, staged target, journal; the live files are replaced and compared, only then the set becomes active. A failed switch is rolled back at once, an interrupted one at the next boot
 - Preview "Next boot" on the page (plan): what the boot step would do and why, with every disk and its set; read-only
@@ -61,7 +64,7 @@ Tag="hdd-o"
 ---
 <?PHP
 /* AADAS - swap whole disk sets on Unraid.
- * Copyright (C) 2026 RaisonRed. License: GPLv3 or later.
+ * Copyright (C) 2026 AtomicRelaxed. License: GPLv3 or later.
  */
 $aadas   = '/boot/config/aadas/aadas.sh';
 $run  = function($a) use ($aadas) { return shell_exec('bash '.escapeshellarg($aadas).' '.$a.' 2>&1'); };
@@ -178,7 +181,7 @@ function psSwitch() {
 <INLINE><![CDATA[
 **AADAS - Auto Array Detection & Swap**
 
-Swap whole disk sets in one Unraid server. At boot, the saved set whose disks are installed exactly is detected and its configuration is applied: slot assignment, pools, shares and *Custom SMB Shares* list. If anything is unclear, nothing is changed and array autostart is held. Release candidate 0.1.0 RC1 - keep a flash backup. [Project page](https://github.com/RaisonRed/unraid-aadas)
+Swap whole disk sets in one Unraid server. At boot, the saved set whose disks are installed exactly is detected and its configuration is applied: slot assignment, pools, shares and *Custom SMB Shares* list. If anything is unclear, nothing is changed and array autostart is held. Release candidate 0.1.0 RC1 - keep a flash backup. [Project page](https://github.com/AtomicRelaxed/unraid-aadas)
 ]]></INLINE>
 </FILE>
 <FILE Name="/usr/local/emhttp/plugins/aadas/include/action.php">
@@ -250,7 +253,7 @@ exit 0
 <INLINE><![CDATA[
 #!/bin/bash
 # aadas.sh - swap whole disk sets on Unraid 7.x
-# Copyright (C) 2026 RaisonRed. License: GPLv3 or later.
+# Copyright (C) 2026 AtomicRelaxed. License: GPLv3 or later.
 #
 # A disk set = the non-global pools (pools/*.cfg incl. subpools), the shares that live on them, the array assignment
 # (super.dat) and, if the "Custom SMB Shares" plugin is installed, its share list. Global pools (an always-installed
