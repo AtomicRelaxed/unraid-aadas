@@ -2,13 +2,16 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name "aadas">
 <!ENTITY author "RaisonRed">
-<!ENTITY version "2026.11.19c">
+<!ENTITY version "2026.11.19d">
 <!ENTITY launch "Utilities/AADAS">
 <!ENTITY gitURL "https://raw.githubusercontent.com/RaisonRed/unraid-aadas/main">
 <!ENTITY pluginURL "&gitURL;/aadas.plg">
 ]>
 <PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" icon="aadas.png" pluginURL="&pluginURL;" support="https://github.com/RaisonRed/unraid-aadas/issues" min="7.0.0">
 <CHANGES>
+###2026.11.19d (0.1.0 RC1)
+- Updates now replace the plugin files (the plugin manager skips files that already exist, so 2026.11.19c did not apply its README)
+
 ###2026.11.19c (0.1.0 RC1)
 - Plugin list: short README (bold title instead of a large heading); the full description is on the project page
 
@@ -44,6 +47,11 @@
 - First local version: status, saved sets, save, switch (two-phase, applied at boot before emhttp), mismatch notification
 </CHANGES>
 <!-- License: GPLv3 or later -->
+<FILE Run="/bin/bash">
+<INLINE><![CDATA[
+rm -rf /usr/local/emhttp/plugins/aadas   # the plugin manager never overwrites existing files: clear stale files so an update applies
+]]></INLINE>
+</FILE>
 <FILE Name="/usr/local/emhttp/plugins/aadas/AADAS.page">
 <INLINE><![CDATA[
 Menu="Utilities"

@@ -4,7 +4,7 @@
 
 **An Unraid plugin for servers that hold more than one set of disks. At boot it detects which set is installed and applies that set's array configuration.**
 
-> **Status: 0.1.0 RC1 (plugin version `2026.11.19c`) - release candidate.** It runs on one server and has passed isolated tests of the boot and rollback paths. Read [Testing](#testing) before you rely on it, and keep a flash backup.
+> **Status: 0.1.0 RC1 (plugin version `2026.11.19d`) - release candidate.** It runs on one server and has passed isolated tests of the boot and rollback paths. Read [Testing](#testing) before you rely on it, and keep a flash backup.
 
 ## Why
 Unraid keeps one array configuration. If you swap whole sets of disks in the same chassis, for example a media set and a backup set, every swap means reassigning slots, pools and shares by hand. One wrong click starts the array with the wrong disks, or offers to format them.

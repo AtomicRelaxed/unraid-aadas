@@ -1,3 +1,6 @@
+###2026.11.19d (0.1.0 RC1)
+- Updates now replace the plugin files (the plugin manager skips files that already exist, so 2026.11.19c did not apply its README)
+
 ###2026.11.19c (0.1.0 RC1)
 - Plugin list: short README (bold title instead of a large heading); the full description is on the project page
 

@@ -15,6 +15,7 @@ o = ['<?xml version="1.0" standalone="yes"?>', '<!DOCTYPE PLUGIN [', '<!ENTITY n
      f'<!ENTITY version "{ver}">', '<!ENTITY launch "Utilities/AADAS">', '<!ENTITY gitURL "https://raw.githubusercontent.com/RaisonRed/unraid-aadas/main">', '<!ENTITY pluginURL "&gitURL;/aadas.plg">', ']>',
      '<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" icon="aadas.png" pluginURL="&pluginURL;" support="https://github.com/RaisonRed/unraid-aadas/issues" min="7.0.0">', '<CHANGES>', rd(D + "/CHANGES.md").strip(), '</CHANGES>',
      '<!-- License: GPLv3 or later -->']
+o.append('<FILE Run="/bin/bash">\n<INLINE><![CDATA[\nrm -rf /usr/local/emhttp/plugins/aadas   # the plugin manager never overwrites existing files: clear stale files so an update applies\n]]></INLINE>\n</FILE>')
 for path, c, mode in files:
     m = f' Mode="{mode}"' if mode else ''
     o.append(f'<FILE Name="{path}"{m}>\n<INLINE><![CDATA[\n{c}]]></INLINE>\n</FILE>')
