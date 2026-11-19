@@ -1,3 +1,6 @@
+###2026.11.19c (0.1.0 RC1)
+- Plugin list: short README (bold title instead of a large heading); the full description is on the project page
+
 ###2026.11.19b (0.1.0 RC1)
 - Autosave schedule is active right after a fresh install (before: only after the next reboot)
 
