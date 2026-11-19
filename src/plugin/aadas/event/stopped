@@ -1,0 +1,3 @@
+#!/bin/bash
+# AADAS: save the active set when the array has stopped (only if the installed disks are exactly that set).
+timeout 30 bash /boot/config/aadas/aadas.sh stopped >/dev/null 2>&1 || true

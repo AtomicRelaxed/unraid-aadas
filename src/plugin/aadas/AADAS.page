@@ -1,0 +1,118 @@
+Menu="Utilities"
+Title="AADAS - Auto Array Detection & Swap"
+Icon="aadas.png"
+Tag="hdd-o"
+---
+<?PHP
+/* AADAS - swap whole disk sets on Unraid.
+ * Copyright (C) 2026 RaisonRed. License: GPLv3 or later.
+ */
+$aadas   = '/boot/config/aadas/aadas.sh';
+$run  = function($a) use ($aadas) { return shell_exec('bash '.escapeshellarg($aadas).' '.$a.' 2>&1'); };
+$stopped = (($var['mdState'] ?? '') === 'STOPPED');
+$profiles = array_map('basename', glob('/boot/config/aadas/profiles/*', GLOB_ONLYDIR) ?: []);
+$active = trim(@file_get_contents('/boot/config/aadas/active') ?: '');
+$check = $run('check');
+$gcfg = @file_get_contents('/boot/config/aadas/global.cfg') ?: '';
+$autosave = 'off'; if (preg_match('/^AUTOSAVE="(\\w+)"/m', $gcfg, $m)) $autosave = $m[1];
+$detect = 'no'; if (preg_match('/^AUTO_DETECT="(\\w+)"/m', $gcfg, $m)) $detect = $m[1];
+$onstop = 'yes'; if (preg_match('/^SAVE_ON_STOP="(\\w+)"/m', $gcfg, $m)) $onstop = $m[1];
+?>
+<style>
+pre.aadas{background:var(--background-color, #f2f2f2);padding:8px;border:1px solid #ccc;white-space:pre-wrap}
+.aadas-warn{color:#c00;font-weight:bold}.aadas-ok{color:#080}
+</style>
+<p class="<?=strpos($check,'MISMATCH')===0?'aadas-warn':'aadas-ok'?>"><?=htmlspecialchars(trim($check))?></p>
+
+<div class="title"><span class="left">_(Status)_</span></div>
+<pre class="aadas"><?=htmlspecialchars($run('status'))?></pre>
+
+<div class="title"><span class="left">_(Next boot (preview, nothing is changed))_</span></div>
+<pre class="aadas"><?=htmlspecialchars(shell_exec('AADAS_SETTLE=0 bash '.escapeshellarg($aadas).' plan 2>&1'))?></pre>
+
+<div class="title"><span class="left">_(Saved sets)_</span></div>
+<pre class="aadas"><?=htmlspecialchars($run('list') ?: _('No sets saved yet.'))?></pre>
+
+<div class="title"><span class="left">_(Actions)_</span></div>
+<dl>
+<dt>_(Save current set as)_:</dt>
+<dd><input type="text" id="aadas_name" maxlength="32" value="<?=htmlspecialchars($active)?>" pattern="[A-Za-z0-9_-]{1,32}">
+<input type="button" value="_(Save)_" onclick="aadasDo('save',$('#aadas_name').val())"></dd>
+
+<dt>_(Switch to set)_:</dt>
+<dd><select id="aadas_target">
+<?foreach ($profiles as $p): if ($p===$active) continue;?><option value="<?=htmlspecialchars($p)?>"><?=htmlspecialchars($p)?></option><?endforeach;?>
+<option value="new">_(new, empty set)_</option>
+</select>
+<input type="button" value="_(Switch)_" onclick="psSwitch()" <?=$stopped?'':'disabled'?>>
+<?if (!$stopped):?><span class="aadas-warn">_(Stop the array first.)_</span><?endif;?></dd>
+<dt>_(Rename set)_:</dt>
+<dd><select id="aadas_ren_old"><?foreach ($profiles as $p):?><option value="<?=htmlspecialchars($p)?>"><?=htmlspecialchars($p)?></option><?endforeach;?></select>
+&rarr; <input type="text" id="aadas_ren_new" maxlength="32" pattern="[A-Za-z0-9_-]{1,32}">
+<input type="button" value="_(Rename)_" onclick="aadasDo('rename',$('#aadas_ren_old').val(),$('#aadas_ren_new').val())"></dd>
+
+<dt>_(Delete set)_:</dt>
+<dd><select id="aadas_del"><?foreach ($profiles as $p): if ($p===$active) continue;?><option value="<?=htmlspecialchars($p)?>"><?=htmlspecialchars($p)?></option><?endforeach;?></select>
+<input type="button" value="_(Delete)_" onclick="aadasConfirm('delete',$('#aadas_del').val(),'_(Delete disk set)_','_(The set is moved to the backups and removed from the list. The active set cannot be deleted.)_')"></dd>
+
+<dt>_(Detect the installed set at boot)_:</dt>
+<dd><select id="aadas_detect"><?foreach (['no'=>_('no - only a pending switch is applied'),'yes'=>_('yes - apply the saved set whose disks are installed exactly')] as $k=>$v):?><option value="<?=$k?>"<?=$detect===$k?' selected':''?>><?=$v?></option><?endforeach;?></select>
+<input type="button" value="_(Set)_" onclick="aadasDo('set','detect',$('#aadas_detect').val())"></dd>
+
+<dt>_(Save the active set when the array stops)_:</dt>
+<dd><select id="aadas_onstop"><?foreach (['yes'=>_('yes'),'no'=>_('no')] as $k=>$v):?><option value="<?=$k?>"<?=$onstop===$k?' selected':''?>><?=$v?></option><?endforeach;?></select>
+<input type="button" value="_(Set)_" onclick="aadasDo('set','save_on_stop',$('#aadas_onstop').val())">
+<span>_(Only when the installed disks are exactly the active set and its disks are unchanged. A shutdown stops the array, so the set is saved before every disk swap.)_</span></dd>
+
+<dt>_(Automatic backup of the active set)_:</dt>
+<dd><select id="aadas_sched">
+<?foreach (['off'=>_('off'),'daily'=>_('daily 03:15'),'weekly'=>_('weekly, Sunday 03:15')] as $k=>$v):?><option value="<?=$k?>"<?=$autosave===$k?' selected':''?>><?=$v?></option><?endforeach;?>
+</select> <input type="button" value="_(Set schedule)_" onclick="aadasDo('schedule',$('#aadas_sched').val())">
+<span>_(Only saves when the installed disks match the active set. Keeps the newest backups.)_</span></dd>
+</dl>
+<blockquote class="inline_help">
+<p><b>How a switch works:</b> the current set is saved, the target is marked <i>pending</i>. Then power down, swap the disks and boot.
+Before Unraid starts, the pending set is applied - but only if exactly its disks are installed (boot flash, global pools and
+ignored disks do not count). Otherwise nothing changes.</p>
+<p><b>Detect at boot:</b> without a pending switch, the one saved set whose disks are installed exactly is applied. Missing, extra,
+unknown or mixed disks, or two matching sets: nothing is applied, autostart is held off and a notification says why.
+The switch is staged and verified; an interrupted switch is rolled back at the next boot. The preview above shows what the next
+boot would do.
+This tool never starts the array and never formats anything. Global pools (e.g. the SSD with appdata/system) are never touched.</p>
+<p><b>Array autostart</b> is held off automatically while the installed disks do not match a saved set (pending switch, new set,
+swapped disks) and restored to your setting at the first boot where they match again. A new set counts once it is saved.</p>
+</blockquote>
+<pre class="aadas" id="aadas_out" style="display:none"></pre>
+
+<script>
+function aadasDo(cmd, name, name2) {
+  $.post('/plugins/aadas/include/action.php', {cmd: cmd, name: name || '', name2: name2 || ''}, function(r) {
+    $('#aadas_out').show().text(r);
+    if (/ERROR/.test(r)) { swal({title: "_(Not done)_", text: r, type: 'error'}); return; }   // keep errors visible, no reload
+    setTimeout(function(){ location.reload(); }, 2500);
+  }).fail(function(x){ $('#aadas_out').show().text('Error: ' + x.status + ' ' + x.responseText); swal({title: "_(Not done)_", text: x.responseText, type: 'error'}); });
+}
+function aadasConfirm(cmd, t, title, info) {
+  if (!t) return;
+  swal({title: title + "?", type: 'input', showCancelButton: true, closeOnConfirm: true, html: true, inputPlaceholder: t,
+        text: "<b>" + t + "</b><br>" + info + "<br>_(Type the name to confirm)_:"},
+    function(v) { if (v === t) aadasDo(cmd, t); else if (v !== false) swal("_(Not confirmed)_", "", "error"); });
+}
+function psSwitch() {
+  var t = $('#aadas_target').val();
+  if (t === 'new') {
+    swal({title: "_(Switch to a new, empty set)_?", type: 'input', showCancelButton: true, closeOnConfirm: false, html: true, inputPlaceholder: "SET_2_BACKUPS",
+          text: "_(The current set is saved first. Afterwards power down, swap the disks and boot.)_<br>_(Name of the new set)_ (A-Z a-z 0-9 _ -):"},
+      function(v) {
+        if (v === false) return;
+        if (!/^[A-Za-z0-9_-]{1,32}$/.test(v) || v === 'new') { swal.showInputError("_(Invalid name)_"); return false; }
+        swal.close(); aadasDo('switch', 'new', v);
+      });
+    return;
+  }
+  swal({title: "_(Switch disk set)_?", type: 'input', showCancelButton: true, closeOnConfirm: true,
+        text: "_(Target)_: <b>" + t + "</b><br>_(The current set is saved first. Afterwards power down, swap the disks and boot.)_<br>_(Type the target name to confirm)_:",
+        html: true, inputPlaceholder: t},
+    function(v) { if (v === t) aadasDo('switch', t); else if (v !== false) swal("_(Not confirmed)_", "", "error"); });
+}
+</script>

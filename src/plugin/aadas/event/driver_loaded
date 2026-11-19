@@ -1,0 +1,15 @@
+#!/bin/bash
+# AADAS: report what the boot step did (once per boot) and warn if the installed disks do not match the configured set.
+B=/boot/config/aadas
+N=/usr/local/emhttp/webGui/scripts/notify
+if [ -f $B/last_boot ] && [ ! -f /var/tmp/aadas_boot_reported ]; then
+  touch /var/tmp/aadas_boot_reported
+  R=$(grep -oP '^result=\K.*' $B/last_boot); T=$(grep -oP '^target=\K.*' $B/last_boot); W=$(grep -oP '^reason=\K.*' $B/last_boot)
+  case "$R" in
+    applied)   $N -e "AADAS" -s "Disk set '$T' applied" -d "$W" -i "normal" -l "/Utilities/AADAS" ;;
+    hold|recovered|rollback_failed)
+               $N -e "AADAS" -s "Disk set NOT applied - array autostart held - do NOT format" -d "$R: $W" -i "alert" -l "/Utilities/AADAS" ;;
+  esac
+fi
+MSG=$(bash $B/aadas.sh check 2>&1) && exit 0
+$N -e "AADAS" -s "Disk set mismatch - do NOT format" -d "$MSG" -i "alert" -l "/Utilities/AADAS"
