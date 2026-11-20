@@ -12,6 +12,8 @@ $run  = function($a) use ($aadas) { return shell_exec('bash '.escapeshellarg($aa
 $stopped = (($var['mdState'] ?? '') === 'STOPPED');
 $profiles = array_map('basename', glob('/boot/config/aadas/profiles/*', GLOB_ONLYDIR) ?: []);
 $active = trim(@file_get_contents('/boot/config/aadas/active') ?: '');
+$pending = trim(@file_get_contents('/boot/config/aadas/pending') ?: '');
+$newname = trim(@file_get_contents('/boot/config/aadas/newname') ?: '');
 $check = $run('check');
 $gcfg = @file_get_contents('/boot/config/aadas/global.cfg') ?: '';
 $autosave = 'off'; if (preg_match('/^AUTOSAVE="(\\w+)"/m', $gcfg, $m)) $autosave = $m[1];
@@ -45,7 +47,8 @@ pre.aadas{background:var(--background-color, #f2f2f2);padding:8px;border:1px sol
 <option value="new">_(new, empty set)_</option>
 </select>
 <input type="button" value="_(Switch)_" onclick="psSwitch()" <?=$stopped?'':'disabled'?>>
-<?if (!$stopped):?><span class="aadas-warn">_(Stop the array first.)_</span><?endif;?></dd>
+<?if (!$stopped):?><span class="aadas-warn">_(Stop the array first.)_</span><?endif;?>
+<?if ($pending!==''):?><br><span class="aadas-ok">_(Pending)_: <b><?=htmlspecialchars($pending==='new' ? 'new set'.($newname!=='' ? ' "'.$newname.'"' : '') : $pending)?></b> - _(applied at the next boot (the list above only shows saved sets))_</span><?endif;?></dd>
 <dt>_(Rename set)_:</dt>
 <dd><select id="aadas_ren_old"><?foreach ($profiles as $p):?><option value="<?=htmlspecialchars($p)?>"><?=htmlspecialchars($p)?></option><?endforeach;?></select>
 &rarr; <input type="text" id="aadas_ren_new" maxlength="32" pattern="[A-Za-z0-9_-]{1,32}">
@@ -101,7 +104,7 @@ function aadasConfirm(cmd, t, title, info) {
 function psSwitch() {
   var t = $('#aadas_target').val();
   if (t === 'new') {
-    swal({title: "_(Switch to a new, empty set)_?", type: 'input', showCancelButton: true, closeOnConfirm: false, html: true, inputPlaceholder: "SET_2_BACKUPS",
+    swal({title: "_(Switch to a new, empty set)_?", type: 'input', showCancelButton: true, closeOnConfirm: false, html: true, inputPlaceholder: "SET_NAME",
           text: "_(The current set is saved first. Afterwards power down, swap the disks and boot.)_<br>_(Name of the new set)_ (A-Z a-z 0-9 _ -):"},
       function(v) {
         if (v === false) return;

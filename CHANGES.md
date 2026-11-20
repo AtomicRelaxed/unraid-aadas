@@ -1,3 +1,8 @@
+###2026.11.20 (0.1.1 RC1)
+- Samba: after every array start AADAS tries one Samba config reload, once /etc/samba/smb-shares.conf has been unchanged for 5 s (heuristic, max 60 s, result in aadas.log). Work-around for Unraid 7.3.4, where "rc.samba reload" does not reload: clients that connected early saw new shares but could not open them. Not yet run on a live boot
+- Page: a pending switch is shown next to "Switch to set" (the list only contains saved sets)
+- Page: neutral placeholder in the "new set" dialog
+
 ###2026.11.19h (0.1.0 RC1)
 - Internal boot (Unraid 7.3): the boot device is recognized on a SATA SSD, an NVMe drive or a mirrored ZFS boot pool, not only on a USB flash drive
 

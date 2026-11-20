@@ -1,14 +1,46 @@
 #!/bin/bash
-# AADAS: after a set was applied at boot, rebuild the Samba config of the "Custom SMB Shares" plugin.
-# That plugin writes its config when it is installed, before the boot step swaps its share list, and its own
-# array-start handler is not run (event/started is not executable in 2026.07.12a). So it would keep the old set's exports.
+# AADAS - array started.
+# 1. Samba reload (every array start): in Unraid 7.3.4 "rc.samba reload" does not reload in the normal case -
+#    samba_reload() runs "smbcontrol all reload-config" only "if ! samba_update", and samba_update returns 0 when its
+#    condition is false (Samba running, interfaces unchanged).
+#    A client that connected before the share config was written keeps the old share list (BAD_NETWORK_NAME).
+#    Reloading is not a restart: open share connections keep their settings, new tree connects see the new shares.
+# 2. After a set was applied at boot: rebuild the Samba config of the "Custom SMB Shares" plugin.
+#    That plugin writes its config when it is installed, before the boot step swaps its share list, and its own
+#    array-start handler is not run (event/started is not executable in 2026.07.12a). So it would keep the old set's exports.
 B=/boot/config/aadas; export L=/usr/local/emhttp/plugins/custom.smb.shares/include/lib.php; M=/var/tmp/aadas_smb_rebuilt
-[ -f "$L" ] && [ ! -f "$M" ] || exit 0
-grep -qx 'result=applied' "$B/last_boot" 2>/dev/null || exit 0
-if php -r 'require getenv("L"); $r = rebuildSambaConfig(); exit($r["success"] ? 0 : 1);' 2>/dev/null; then
-  touch "$M"   # only after success: a failed rebuild is retried at the next array start
-  echo "$(date '+%F %T') boot: Custom SMB Shares config rebuilt for the applied set" >> "$B/aadas.log"
-else
-  /usr/local/emhttp/webGui/scripts/notify -e "AADAS" -s "SMB shares of the applied set not rebuilt" -d "Rebuild them in Custom SMB Shares (or restart its service)." -i "warning" -l "/Utilities/AADAS"
+S=/etc/samba/smb-shares.conf; G=/var/tmp/aadas_started_gen
+gen="$(date +%s%N)-$$"; echo "$gen" > "$G"   # newest array start wins (see smb_reload)
+echo "$(date '+%F %T') array start: hook entered (smb-shares.conf $(stat -c %y "$S" 2>/dev/null || echo missing))" >> "$B/aadas.log"
+# HEURISTIC, not a guarantee: there is no "shares published" signal and the order of event/started vs. emhttpd writing
+# /etc/samba/smb-shares.conf is not documented. The worker runs detached and reloads once the file exists and its
+# mtime has been unchanged for 5 consecutive successful stats (max 60 s). Timeout, missing file or a newer array start
+# (generation token) -> no reload, logged. rc 0 of smbcontrol only means the message was delivered.
+smb_reload() {
+  setsid bash -c '
+    S=$1; B=$2; G=$3; gen=$4; last=""; same=0; ok=0
+    for i in $(seq 1 60); do
+      [ "$(cat "$G" 2>/dev/null)" = "$gen" ] || { echo "$(date "+%F %T") array start: Samba reload skipped (a newer array start took over)" >> "$B/aadas.log"; exit 0; }
+      if m=$(stat -c %y "$S" 2>/dev/null) && [ -n "$m" ]; then
+        if [ "$m" = "$last" ]; then same=$((same+1)); else same=0; last=$m; fi
+        [ $same -ge 5 ] && { ok=1; break; }
+      else same=0; last=""; fi
+      sleep 1
+    done
+    [ $ok = 1 ] || { echo "$(date "+%F %T") array start: Samba reload skipped (smb-shares.conf not stable/present within 60 s)" >> "$B/aadas.log"; exit 0; }
+    pgrep -x smbd >/dev/null || { echo "$(date "+%F %T") array start: Samba not running, no reload" >> "$B/aadas.log"; exit 0; }
+    [ "$(cat "$G" 2>/dev/null)" = "$gen" ] || { echo "$(date "+%F %T") array start: Samba reload skipped (a newer array start took over)" >> "$B/aadas.log"; exit 0; }
+    if smbcontrol smbd reload-config 2>/dev/null; then r="sent"; else r="FAILED (rc $?)"; fi
+    echo "$(date "+%F %T") array start: Samba reload-config $r (smb-shares.conf mtime $last, stable 5 s)" >> "$B/aadas.log"
+  ' _ "$S" "$B" "$G" "$gen" >/dev/null 2>&1 < /dev/null &
+}
+if [ -f "$L" ] && [ ! -f "$M" ] && grep -qx 'result=applied' "$B/last_boot" 2>/dev/null; then
+  if php -r 'require getenv("L"); $r = rebuildSambaConfig(); exit($r["success"] ? 0 : 1);' 2>/dev/null; then
+    touch "$M"   # only after success: a failed rebuild is retried at the next array start
+    echo "$(date '+%F %T') boot: Custom SMB Shares config rebuilt for the applied set" >> "$B/aadas.log"
+  else
+    /usr/local/emhttp/webGui/scripts/notify -e "AADAS" -s "SMB shares of the applied set not rebuilt" -d "Rebuild them in Custom SMB Shares (or restart its service)." -i "warning" -l "/Utilities/AADAS"
+  fi
 fi
+smb_reload
 exit 0
